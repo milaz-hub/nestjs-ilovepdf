@@ -6,7 +6,7 @@ The library aims to provide a modular, type-safe and maintainable integration wi
 
 ## Project Status
 
-**Early Development — v0.1.0-beta.0**
+**Early Development — v0.1.0**
 
 This project is currently under development. The API and available features may change before the first stable release.
 

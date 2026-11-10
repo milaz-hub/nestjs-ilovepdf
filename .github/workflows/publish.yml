@@ -2,21 +2,27 @@ name: Publish to npm
 
 on:
   push:
-    tags:
-      - 'v*-beta.*'
+    branches:
+      - main
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
+
+concurrency:
+  group: npm-publish-main
+  cancel-in-progress: false
 
 jobs:
   publish:
-    name: Publish package
+    name: Build, Test and Publish
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+        with:
+          ref: main
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
@@ -31,15 +37,26 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Verify release version
-        shell: bash
-        run: |
-          TAG_VERSION="${GITHUB_REF_NAME#v}"
-          PKG_VERSION="$(node -p "require('./package.json').version")"
-          test "$TAG_VERSION" = "$PKG_VERSION"
-
       - name: Run tests
         run: npm test
 
-      - name: Publish package
-        run: npm publish --tag next --access public
+      - name: Verify package
+        run: npm pack --dry-run
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Increment version
+        run: |
+          npm version patch -m "chore(release): %s [skip ci]"
+
+      - name: Push version and tag
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          git push origin HEAD:main
+          git push origin "v${VERSION}"
+
+      - name: Publish to npm
+        run: npm publish --tag latest --access public
