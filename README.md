@@ -29,7 +29,7 @@ This project is currently under development. The API and available features may 
 
 The package will be available through npm once the first version is published.
 
-`npm install nestjs-ilovepdf@next`
+`npm install nestjs-ilovepdf`
 
 The installation command above is intended for future beta releases.
 
